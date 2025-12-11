@@ -1,0 +1,24 @@
+# SQLite 数据库文件
+tmp/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 构建产物
+bin/
+dist/
+coverage.txt
+profile.out
+
+# 日志文件
+*.log
+
+# 依赖缓存
+vendor/
+go.sum
