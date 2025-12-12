@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0; /* 防止头部被压缩 */
+  flex-shrink: 0;
 }
 
 .calendar-header h2 {
@@ -24,22 +24,64 @@
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  flex: 1; /* 让日历容器占据剩余空间 */
-  min-height: 0; /* 允许 flex 子元素收缩 */
+  flex: 1;
+  min-height: 0;
 }
 
-/* 确保日历组件充分利用空间 */
 .rbc-calendar {
   font-family: inherit;
-  height: 100%; /* 日历占满容器高度 */
+  height: 100%;
 }
 
 .rbc-time-view {
   border: none;
-  height: 100%; /* 时间视图占满高度 */
+  height: 100%;
 }
 
-/* Customize react-big-calendar */
+.rbc-event.rbc-selected {
+  background-color: inherit !important;
+}
+
+.rbc-event.rbc-selected:hover {
+  opacity: 0.9 !important;
+}
+
+.rbc-month-view .rbc-event {
+  position: relative;
+  display: block;
+  margin: 1px 2px;
+  padding: 0 4px;
+  background-color: #3174ad;
+  border-radius: 2px;
+  color: #fff;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.rbc-month-view .rbc-event.rbc-event-continues-prior {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.rbc-month-view .rbc-event.rbc-event-continues-after {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.rbc-month-view .rbc-event.rbc-event-continues-earlier {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.rbc-month-view .rbc-event.rbc-event-continues-later {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 .rbc-toolbar {
   padding: 1rem;
   background-color: #f8f9fa;

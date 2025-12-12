@@ -792,7 +792,7 @@ date-arithmetic@^4.1.0:
   resolved "https://registry.yarnpkg.com/date-arithmetic/-/date-arithmetic-4.1.0.tgz#e5d6434e9deb71f79760a37b729e4a515e730ddf"
   integrity sha512-QWxYLR5P/6GStZcdem+V1xoto6DMadYWpMXU82ES3/RfR3Wdwr3D0+be7mgOJ+Ov0G9D5Dmb9T17sNLQYj9XOg==
 
-dayjs@^1.11.19, dayjs@^1.11.7:
+dayjs@^1.11.7:
   version "1.11.19"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.19.tgz#15dc98e854bb43917f12021806af897c58ae2938"
   integrity sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw==
@@ -1413,7 +1413,7 @@ moment-timezone@^0.5.40:
   dependencies:
     moment "^2.29.4"
 
-moment@^2.29.4:
+moment@^2.29.4, moment@^2.30.1:
   version "2.30.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
   integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
@@ -1683,6 +1683,11 @@ supports-color@^7.1.0:
   integrity sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
   dependencies:
     has-flag "^4.0.0"
+
+timezone@^1.0.23:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/timezone/-/timezone-1.0.23.tgz#87865e2c9d6aff6a52a598247e8f5102a92c881b"
+  integrity sha512-yhQgk6qmSLB+TF8HGmApZAVI5bfzR1CoKUGr+WMZWmx75ED1uDewAZA8QMGCQ70TEv4GmM8pDB9jrHuxdaQ1PA==
 
 tinyglobby@^0.2.15:
   version "0.2.15"

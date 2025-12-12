@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Category, Tag, CreateActivityDto, UpdateActivityDto, CreateCategoryDto, CreateTagDto } from '../types';
-import { categoryApi, tagApi } from '../services/api';
+import moment from 'moment';
+import {CreateTagDto, Tag} from "@/app/services/tag/types.ts";
+import {tagApi} from "@/app/services/tag/api.ts";
+import {Category, CreateCategoryDto} from "@/app/services/category/types.ts";
+import {Activity, CreateActivityDto, UpdateActivityDto} from "@/app/services/activity/types.ts";
+import {categoryApi} from "@/app/services/category/api.ts";
+
+// Convert ISO string to local datetime format for input field
+const isoToLocalDateTime = (isoString: string): string => {
+  return moment(isoString).format('YYYY-MM-DDTHH:mm');
+};
+
+// Convert local datetime string to ISO format
+const localDateTimeToISO = (localDateTime: string): string => {
+  return moment(localDateTime).toISOString();
+};
 
 interface ActivityModalProps {
   show: boolean;
@@ -55,16 +69,17 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
       });
     } else if (selectedSlot) {
       setFormData({
-        from: selectedSlot.start.toISOString(),
-        to: selectedSlot.end.toISOString(),
+        from: moment(selectedSlot.start).toISOString(),
+        to: moment(selectedSlot.end).toISOString(),
         name: '',
         category_id: categories.length > 0 ? categories[0].id : 0,
         selectedTags: [],
       });
     } else {
+      const now = moment();
       setFormData({
-        from: new Date().toISOString(),
-        to: new Date(Date.now() + 3600000).toISOString(),
+        from: now.toISOString(),
+        to: now.add(1, 'hour').toISOString(),
         name: '',
         category_id: categories.length > 0 ? categories[0].id : 0,
         selectedTags: [],
@@ -88,9 +103,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const createdCategory = await categoryApi.create(newCategory);
-      // Refresh categories by calling parent's fetchData
-      window.location.reload(); // Temporary solution, will be replaced with proper state management
+      await categoryApi.create(newCategory);
+      window.location.reload();
     } catch (error) {
       console.error('Error creating category:', error);
     }
@@ -99,9 +113,8 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
   const handleTagSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const createdTag = await tagApi.create(newTag);
-      // Refresh tags by calling parent's fetchData
-      window.location.reload(); // Temporary solution, will be replaced with proper state management
+      await tagApi.create(newTag);
+      window.location.reload();
     } catch (error) {
       console.error('Error creating tag:', error);
     }
@@ -149,8 +162,11 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
               <input
                 type="datetime-local"
                 className="form-input"
-                value={formData.from.slice(0, 16)}
-                onChange={(e) => setFormData(prev => ({ ...prev, from: e.target.value + ':00.000Z' }))}
+                value={isoToLocalDateTime(formData.from)}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  from: localDateTimeToISO(e.target.value) 
+                }))}
                 required
               />
             </div>
@@ -159,8 +175,11 @@ const ActivityModal: React.FC<ActivityModalProps> = ({
               <input
                 type="datetime-local"
                 className="form-input"
-                value={formData.to.slice(0, 16)}
-                onChange={(e) => setFormData(prev => ({ ...prev, to: e.target.value + ':00.000Z' }))}
+                value={isoToLocalDateTime(formData.to)}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  to: localDateTimeToISO(e.target.value) 
+                }))}
                 required
               />
             </div>

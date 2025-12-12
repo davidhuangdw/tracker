@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Tag, CreateTagDto, UpdateTagDto } from '../types';
-import { tagApi } from '../services/api';
-import './TagManagementPage.css';
+import './CategoryManagement.css';
+import {Category, CreateCategoryDto, UpdateCategoryDto} from "@/app/services/category/types.ts";
+import {categoryApi} from "@/app/services/category/api.ts";
 
-const TagManagementPage: React.FC = () => {
-  const [tags, setTags] = useState<Tag[]>([]);
+const CategoryManagement: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [editingTag, setEditingTag] = useState<Tag | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    color: '#e74c3c',
+    color: '#3498db',
     description: ''
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchTags();
+    fetchCategories();
   }, []);
 
-  const fetchTags = async () => {
+  const fetchCategories = async () => {
     try {
-      const data = await tagApi.getAll();
-      setTags(data);
+      const data = await categoryApi.getAll();
+      setCategories(data);
     } catch (error) {
-      console.error('Error fetching tags:', error);
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -32,58 +32,58 @@ const TagManagementPage: React.FC = () => {
     setLoading(true);
 
     try {
-      if (editingTag) {
-        const updateData: UpdateTagDto = {
+      if (editingCategory) {
+        const updateData: UpdateCategoryDto = {
           name: formData.name,
           color: formData.color,
           description: formData.description
         };
-        await tagApi.update(editingTag.id, updateData);
+        await categoryApi.update(editingCategory.id, updateData);
       } else {
-        const createData: CreateTagDto = {
+        const createData: CreateCategoryDto = {
           name: formData.name,
           color: formData.color,
           description: formData.description
         };
-        await tagApi.create(createData);
+        await categoryApi.create(createData);
       }
 
-      await fetchTags();
+      await fetchCategories();
       handleCloseModal();
     } catch (error) {
-      console.error('Error saving tag:', error);
+      console.error('Error saving category:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (tag: Tag) => {
-    setEditingTag(tag);
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
     setFormData({
-      name: tag.name,
-      color: tag.color,
-      description: tag.description || ''
+      name: category.name,
+      color: category.color,
+      description: category.description || ''
     });
     setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm('确定要删除这个标签吗？')) {
+    if (window.confirm('确定要删除这个分类吗？')) {
       try {
-        await tagApi.delete(id);
-        await fetchTags();
+        await categoryApi.delete(id);
+        await fetchCategories();
       } catch (error) {
-        console.error('Error deleting tag:', error);
+        console.error('Error deleting category:', error);
       }
     }
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setEditingTag(null);
+    setEditingCategory(null);
     setFormData({
       name: '',
-      color: '#e74c3c',
+      color: '#3498db',
       description: ''
     });
   };
@@ -97,37 +97,37 @@ const TagManagementPage: React.FC = () => {
   };
 
   return (
-    <div className="tag-management-page">
+    <div className="category-management-page">
       <div className="page-header">
-        <h2>标签管理</h2>
+        <h2>分类管理</h2>
         <button 
           className="btn-primary"
           onClick={() => setShowModal(true)}
         >
-          添加标签
+          添加分类
         </button>
       </div>
 
-      <div className="tags-grid">
-        {tags.map(tag => (
-          <div key={tag.id} className="tag-card">
+      <div className="categories-grid">
+        {categories.map(category => (
+          <div key={category.id} className="category-card">
             <div 
-              className="tag-color" 
-              style={{ backgroundColor: tag.color }}
+              className="category-color" 
+              style={{ backgroundColor: category.color }}
             ></div>
-            <div className="tag-info">
-              <h3>{tag.name}</h3>
-              <p>{tag.description || '暂无描述'}</p>
-              <div className="tag-actions">
+            <div className="category-info">
+              <h3>{category.name}</h3>
+              <p>{category.description || '暂无描述'}</p>
+              <div className="category-actions">
                 <button 
                   className="btn-edit"
-                  onClick={() => handleEdit(tag)}
+                  onClick={() => handleEdit(category)}
                 >
                   编辑
                 </button>
                 <button 
                   className="btn-delete"
-                  onClick={() => handleDelete(tag.id)}
+                  onClick={() => handleDelete(category.id)}
                 >
                   删除
                 </button>
@@ -141,12 +141,12 @@ const TagManagementPage: React.FC = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>{editingTag ? '编辑标签' : '添加标签'}</h3>
+              <h3>{editingCategory ? '编辑分类' : '添加分类'}</h3>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>标签名称</label>
+                <label>分类名称</label>
                 <input
                   type="text"
                   name="name"
@@ -176,7 +176,7 @@ const TagManagementPage: React.FC = () => {
               <div className="modal-actions">
                 <button type="button" onClick={handleCloseModal}>取消</button>
                 <button type="submit" disabled={loading}>
-                  {loading ? '保存中...' : (editingTag ? '更新' : '创建')}
+                  {loading ? '保存中...' : (editingCategory ? '更新' : '创建')}
                 </button>
               </div>
             </form>
@@ -187,4 +187,4 @@ const TagManagementPage: React.FC = () => {
   );
 };
 
-export default TagManagementPage;
+export default CategoryManagement;

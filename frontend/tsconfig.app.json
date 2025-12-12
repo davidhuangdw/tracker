@@ -16,6 +16,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -24,11 +30,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     
-    /* 添加路径映射 */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  },
-  "include": ["src/**/*"]
+  }
 }

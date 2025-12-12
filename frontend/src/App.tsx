@@ -1,21 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './shared/components/Layout';
-import CalendarPage from './domains/timetrack/components/CalendarPage';
-import StatsPage from './domains/timetrack/components/StatsPage';
-import CategoryManagementPage from './domains/timetrack/components/CategoryManagementPage';
-import TagManagementPage from './domains/timetrack/components/TagManagementPage';
+import Layout from '@/shared/components/Layout';
 import './App.css';
+import {Calendar, CategoryManagement, Stats, TagManagement} from "@/app/components/pages";
 
 const App: React.FC = () => {
   return (
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<CalendarPage />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/categories" element={<CategoryManagementPage />} />
-          <Route path="/tags" element={<TagManagementPage />} />
+          <Route path="/" element={<Calendar />} />
+          <Route path="/stats" element={<Stats />} />
+          <Route path="/categories" element={<CategoryManagement />} />
+          <Route path="/tags" element={<TagManagement />} />
         </Routes>
       </Layout>
     </Router>

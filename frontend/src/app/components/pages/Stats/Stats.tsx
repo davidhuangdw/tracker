@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Category, Tag } from '../types';
-import { activityApi, categoryApi, tagApi } from '../services/api';
-import dayjs from 'dayjs';
-import './StatsPage.css';
+import moment from 'moment';
+import './Stats.css';
+import {Tag} from "@/app/services/tag/types.ts";
+import {tagApi} from "@/app/services/tag/api.ts";
+import {Category} from "@/app/services/category/types.ts";
+import {Activity} from "@/app/services/activity/types.ts";
+import {categoryApi} from "@/app/services/category/api.ts";
+import {activityApi} from "@/app/services/activity/api.ts";
 
 interface FilterOptions {
   period: 'day' | 'week' | 'month';
@@ -10,7 +14,7 @@ interface FilterOptions {
   tagIds?: number[];
 }
 
-const StatsPage: React.FC = () => {
+const Stats: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -48,29 +52,29 @@ const StatsPage: React.FC = () => {
   };
 
   const calculateStats = () => {
-    const now = dayjs();
-    let startDate: dayjs.Dayjs;
+    const now = moment();
+    let startDate: moment.Moment;
     
     switch (filters.period) {
       case 'day':
-        startDate = now.startOf('day');
+        startDate = now.clone().startOf('day');
         break;
       case 'week':
-        startDate = now.startOf('week');
+        startDate = now.clone().startOf('week');
         break;
       case 'month':
-        startDate = now.startOf('month');
+        startDate = now.clone().startOf('month');
         break;
       default:
-        startDate = now.startOf('week');
+        startDate = now.clone().startOf('week');
     }
 
-    const endDate = now.endOf(filters.period);
+    const endDate = now.clone().endOf(filters.period);
 
     // Filter activities by date range
     const filteredActivities = activities.filter(activity => {
-      const activityStart = dayjs(activity.from);
-      const activityEnd = dayjs(activity.to);
+      const activityStart = moment(activity.from);
+      const activityEnd = moment(activity.to);
       return activityStart.isAfter(startDate) && activityEnd.isBefore(endDate);
     });
 
@@ -88,7 +92,7 @@ const StatsPage: React.FC = () => {
 
     // Calculate total time
     const totalSeconds = tagFiltered.reduce((sum, activity) => {
-      const duration = dayjs(activity.to).diff(dayjs(activity.from), 'second');
+      const duration = moment(activity.to).diff(moment(activity.from), 'second');
       return sum + duration;
     }, 0);
     setTotalTime(totalSeconds);
@@ -98,7 +102,7 @@ const StatsPage: React.FC = () => {
       const category = categories.find(c => c.id === activity.category_id);
       if (!category) return acc;
 
-      const duration = dayjs(activity.to).diff(dayjs(activity.from), 'second');
+      const duration = moment(activity.to).diff(moment(activity.from), 'second');
       const existing = acc.find(item => item.name === category.name);
       
       if (existing) {
@@ -243,4 +247,4 @@ const StatsPage: React.FC = () => {
   );
 };
 
-export default StatsPage;
+export default Stats;

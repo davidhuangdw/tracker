@@ -1,42 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, momentLocalizer, Event, Views } from 'react-big-calendar';
+import React, {useState, useMemo} from 'react';
+import {Calendar as BigCalendar, momentLocalizer, Event, Views} from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Activity, Category, Tag, CreateActivityDto, UpdateActivityDto } from '../types';
-import { activityApi, categoryApi, tagApi } from '../services/api';
-import ActivityModal from './ActivityModal';
-import './CalendarPage.css';
+import {useFetchTags} from "@/app/services/tag/api.ts";
+import {Activity, CreateActivityDto, UpdateActivityDto} from "@/app/services/activity/types.ts";
+import {useFetchCategories} from "@/app/services/category/api.ts";
+import activityApi, {useFetchActivities} from "@/app/services/activity/api.ts";
+import ActivityModal from './ActivityModal.tsx';
+import './Calendar.css';
 
 const localizer = momentLocalizer(moment);
 
-const CalendarPage: React.FC = () => {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
+const Calendar: React.FC = () => {
+  const [activities, refetchActivities] = useFetchActivities();
+  const [categories] = useFetchCategories();
+  const [tags] = useFetchTags();
   const [showModal, setShowModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
-
-
-  const fetchData = async () => {
-    try {
-      const [activitiesData, categoriesData, tagsData] = await Promise.all([
-        activityApi.getAll(),
-        categoryApi.getAll(),
-        tagApi.getAll(),
-      ]);
-      console.log('--------fetchData', activitiesData, categoriesData, tagsData)
-      setActivities(activitiesData);
-      setCategories(categoriesData);
-      setTags(tagsData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [currentView, setCurrentView] = useState(Views.WEEK);
 
   const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
     setSelectedSlot(slotInfo);
@@ -58,7 +40,7 @@ const CalendarPage: React.FC = () => {
       } else {
         await activityApi.create(activityData as CreateActivityDto);
       }
-      await fetchData();
+      refetchActivities();
       setShowModal(false);
     } catch (error) {
       console.error('Error saving activity:', error);
@@ -68,7 +50,7 @@ const CalendarPage: React.FC = () => {
   const handleDeleteActivity = async (id: number) => {
     try {
       await activityApi.delete(id);
-      await fetchData();
+      refetchActivities();
       setShowModal(false);
     } catch (error) {
       console.error('Error deleting activity:', error);
@@ -83,11 +65,37 @@ const CalendarPage: React.FC = () => {
       end: new Date(activity.to),
       allDay: false,
       activity,
+      resource: {
+        isMultiDay: moment(activity.to).diff(moment(activity.from), 'days') > 0
+      }
     }));
   };
 
-  const events = convertToEvents(activities);
-  console.log('--------events', activities, events)
+  const events = useMemo(() => convertToEvents(activities), [activities]);
+
+  const handleViewChange = (view: string) => {
+    setCurrentView(view);
+  };
+
+  const getEventStyle = (event: Event) => {
+    const activity = event.activity as Activity;
+    const category = categories.find(c => c.id === activity.category_id);
+    const isMultiDay = moment(event.end).diff(moment(event.start), 'days') > 0;
+
+    return {
+      style: {
+        backgroundColor: category?.color || '#3498db',
+        borderRadius: '4px',
+        opacity: 0.8,
+        color: 'white',
+        border: 'none',
+        ...(isMultiDay && {
+          borderLeft: `4px solid ${category?.color || '#3498db'}`,
+          fontWeight: 'bold'
+        })
+      },
+    };
+  };
 
   return (
     <div className="calendar-page">
@@ -95,30 +103,21 @@ const CalendarPage: React.FC = () => {
         <h2>Time Tracker Calendar</h2>
       </div>
       <div className="calendar-container">
-        <Calendar
+        <BigCalendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: 600 }}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
           selectable
-          view={Views.WEEK}
-          views={[Views.DAY, Views.WEEK, Views.MONTH]}
-          eventPropGetter={(event) => {
-            const activity = event.activity as Activity;
-            const category = categories.find(c => c.id === activity.category_id);
-            return {
-              style: {
-                backgroundColor: category?.color || '#3498db',
-                borderRadius: '4px',
-                opacity: 0.8,
-                color: 'white',
-                border: 'none',
-              },
-            };
-          }}
+          view={currentView}
+          onView={handleViewChange}
+          views={[Views.DAY, Views.WEEK, Views.MONTH, Views.AGENDA]}
+          step={60}
+          showMultiDayTimes
+          eventPropGetter={getEventStyle}
+          dayLayoutAlgorithm="no-overlap"
         />
       </div>
 
@@ -136,4 +135,4 @@ const CalendarPage: React.FC = () => {
   );
 };
 
-export default CalendarPage;
+export default Calendar;
