@@ -1,4 +1,4 @@
-import {Tag} from "@/app/services/tag/types.ts";
+import {Tag} from "@/app/services/tag/domain/types.ts";
 
 export interface Activity {
   id: number;

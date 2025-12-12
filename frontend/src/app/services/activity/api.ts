@@ -1,4 +1,4 @@
-import {Activity, CreateActivityDto, UpdateActivityDto} from "@/app/services/activity/types.ts";
+import {Activity, CreateActivityDto, UpdateActivityDto} from "@/app/services/activity/domain/types.ts";
 import API from "@/app/constants/api.ts";
 import {EMPTY_ARR} from "@/shared/constants.ts";
 import {useFetchData} from "@/shared/utils/api.ts";

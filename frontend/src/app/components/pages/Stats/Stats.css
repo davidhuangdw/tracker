@@ -7,7 +7,7 @@
 
 .stats-header {
   margin-bottom: 1.5rem;
-  flex-shrink: 0; /* 防止头部被压缩 */
+  flex-shrink: 0;
 }
 
 .stats-header h2 {
@@ -26,7 +26,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   align-items: flex-start;
-  flex-shrink: 0; /* 防止过滤器被压缩 */
+  flex-shrink: 0;
 }
 
 .filter-group {
@@ -72,9 +72,9 @@
 }
 
 .stats-content {
-  flex: 1; /* 占据剩余空间 */
-  min-height: 0; /* 允许 flex 子元素收缩 */
-  overflow-y: auto; /* 内容过多时滚动 */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .stats-summary {
@@ -93,7 +93,7 @@
 
 .stats-charts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 响应式网格布局 */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   gap: 1.5rem;
 }
 
@@ -102,7 +102,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
-  min-height: 300px; /* 确保图表容器有最小高度 */
+  min-height: 300px;
 }
 
 .chart-container h3 {
@@ -181,12 +181,12 @@
   }
   
   .chart-container {
-    min-height: 250px; /* 移动端调整最小高度 */
+    min-height: 250px;
   }
 }
 
 @media (min-width: 1200px) {
   .stats-charts {
-    grid-template-columns: repeat(2, 1fr); /* 大屏幕显示两列 */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
