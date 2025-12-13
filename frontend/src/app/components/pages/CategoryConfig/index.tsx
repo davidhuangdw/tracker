@@ -1,3 +1,7 @@
-import CategoryConfig from "./CategoryConfig.tsx";
+import CategoryManagement from "@/app/services/category/comp/CategoriyManagement";
 
-export default CategoryConfig;
+const CategoryConfigPage = () => {
+  return <CategoryManagement/>
+};
+
+export default CategoryConfigPage;

@@ -1,33 +1,33 @@
 import API from "@/app/constants/api.ts";
-import {CreateTagDto, Tag, UpdateTagDto} from "./types.ts";
-import {EMPTY_ARR} from "@/shared/constants.ts";
-import {useFetchData} from "@/shared/utils/api.ts";
+import {Tag} from "./types.ts";
+import {EMPTY_ARR} from "@/lib/constants.ts";
+import {useAsyncRun, useFetchData} from "@/lib/utils/api.ts";
 
-export const tagApi = {
-  getAll: async (): Promise<Tag[]> => {
-    const response = await API.get('/tags');
-    return response.data || EMPTY_ARR;
-  },
-  getById: async (id: number): Promise<Tag> => {
-    const response = await API.get(`/tags/${id}`);
-    return response.data;
-  },
-  create: async (tag: CreateTagDto): Promise<Tag> => {
-    const response = await API.post('/tags', tag);
-    return response.data;
-  },
-  update: async (id: number, tag: UpdateTagDto): Promise<Tag> => {
-    const response = await API.put(`/tags/${id}`, tag);
-    return response.data;
-  },
-  delete: async (id: number): Promise<void> => {
-    await API.delete(`/tags/${id}`);
-  },
+export const useFetchTags = (): [Tag[], boolean, () => void] => {
+  const {data, loading, refetch} = useFetchData<Tag[]>('/tags');
+  return [data || EMPTY_ARR, loading, refetch];
 };
 
-export const useFetchTags = (): [Tag[], () => void] => {
-  const {data, refetch} = useFetchData<Tag[]>('/tags');
-  return [data || EMPTY_ARR, refetch];
+export const useCreateTag = (): [(tag: Tag) => Promise<Tag>, boolean] => {
+  const [createTag, running] = useAsyncRun(
+    async (tag: Tag): Promise<Tag> =>
+      (await API.post('/tags', tag)).data
+  );
+  return [createTag, running];
 };
 
-export default tagApi;
+export const useUpdateTag = (): [(id: number, tag: Tag) => Promise<Tag>, boolean] => {
+  const [updateTag, running] = useAsyncRun(
+    async (id: number, tag: Tag): Promise<Tag> =>
+      (await API.put(`/tags/${id}`, tag)).data
+  );
+  return [updateTag, running];
+};
+
+export const useDeleteTag = (): [(id: number) => Promise<void>, boolean] => {
+  const [fetch, running] = useAsyncRun(
+    async (id: number): Promise<void> =>
+      await API.delete(`/tags/${id}`)
+  );
+  return [fetch, running];
+};

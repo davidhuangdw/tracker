@@ -1,30 +1,38 @@
-import {Activity, CreateActivityDto, UpdateActivityDto} from "@/app/services/activity/domain/types.ts";
+import {Activity} from "@/app/services/activity/types.ts";
 import API from "@/app/constants/api.ts";
-import {EMPTY_ARR} from "@/shared/constants.ts";
-import {useFetchData} from "@/shared/utils/api.ts";
-
-export const activityApi = {
-  getAll: async (from?: string, to?: string): Promise<Activity[]> => {
-    const params = new URLSearchParams();
-    if (from) params.append('from', from);
-    if (to) params.append('to', to);
-    const resp = await API.get(`/activities?${params.toString()}`);
-    return resp.data || EMPTY_ARR;
-  },
-  getById: async (id: number): Promise<Activity> => (await API.get(`/activities/${id}`)).data,
-  create: async (activity: CreateActivityDto): Promise<Activity> => (await API.post('/activities', activity)).data,
-  update: async (id: number, activity: UpdateActivityDto): Promise<Activity> => (await API.put(`/activities/${id}`, activity)).data,
-  delete: async (id: number): Promise<void> => await API.delete(`/activities/${id}`),
-};
+import {EMPTY_ARR} from "@/lib/constants.ts";
+import {useAsyncRun, useFetchData} from "@/lib/utils/api.ts";
 
 export const useFetchActivities =
-  (from?: string, to?: string): [Activity[], () => void] => {
+  (from?: string, to?: string): [Activity[], boolean, () => void] => {
     const params = new URLSearchParams();
     if (from) params.append('from', from);
     if (to) params.append('to', to);
 
-    const {data, refetch} = useFetchData<Activity[]>(`/activities?${params.toString()}`);
-    return [data || EMPTY_ARR, refetch]
-  }
+    const {data, loading, refetch} = useFetchData<Activity[]>(`/activities?${params.toString()}`);
+    return [data || EMPTY_ARR, loading, refetch]
+  };
 
-export default activityApi;
+export const useCreateActivity = (): [(activity?: Activity) => Promise<Activity>, boolean] => {
+  const [createActivity, running] = useAsyncRun(
+    async (activity: Activity): Promise<Activity> =>
+      (await API.post('/activities', activity)).data
+  );
+  return [createActivity, running]
+};
+
+export const useUpdateActivity = (): [(id: number, activity?: Activity) => Promise<Activity>, boolean] => {
+  const [updateActivity, running] = useAsyncRun(
+    async (id: number, activity: Activity): Promise<Activity> =>
+      (await API.put(`/activities/${id}`, activity)).data
+  );
+  return [updateActivity, running]
+};
+
+export const useDeleteActivity = (): [(id: number) => Promise<void>, boolean] => {
+  const [fetch, running] = useAsyncRun(
+    async (id: number): Promise<void> =>
+      await API.delete(`/activities/${id}`)
+  );
+  return [fetch, running]
+};

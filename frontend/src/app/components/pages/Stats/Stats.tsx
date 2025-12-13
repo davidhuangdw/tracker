@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import './Stats.css';
-import {Tag} from "@/app/services/tag/types.ts";
-import {tagApi} from "@/app/services/tag/api.ts";
-import {Category} from "@/app/services/category/types.ts";
-import {Activity} from "@/app/services/activity/types.ts";
-import {categoryApi} from "@/app/services/category/api.ts";
-import {activityApi} from "@/app/services/activity/api.ts";
+import {useFetchTags} from "@/app/services/tag/api.ts";
+import {useFetchCategories} from "@/app/services/category/api.ts";
+import {useFetchActivities} from "@/app/services/activity/api.ts";
 
 interface FilterOptions {
   period: 'day' | 'week' | 'month';
@@ -15,9 +12,6 @@ interface FilterOptions {
 }
 
 const Stats: React.FC = () => {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
   const [filters, setFilters] = useState<FilterOptions>({
     period: 'week',
     categoryId: undefined,
@@ -26,30 +20,10 @@ const Stats: React.FC = () => {
   const [statsData, setStatsData] = useState<{ name: string; value: number; color: string }[]>([]);
   const [totalTime, setTotalTime] = useState(0);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [activities] = useFetchActivities();
+  const [categories] = useFetchCategories();
+  const [tags] = useFetchTags();
 
-  useEffect(() => {
-    if (activities.length > 0) {
-      calculateStats();
-    }
-  }, [activities, filters]);
-
-  const fetchData = async () => {
-    try {
-      const [activitiesData, categoriesData, tagsData] = await Promise.all([
-        activityApi.getAll(),
-        categoryApi.getAll(),
-        tagApi.getAll(),
-      ]);
-      setActivities(activitiesData);
-      setCategories(categoriesData);
-      setTags(tagsData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
 
   const calculateStats = () => {
     const now = moment();
@@ -85,7 +59,7 @@ const Stats: React.FC = () => {
 
     // Filter by tags if selected
     const tagFiltered = filters.tagIds.length > 0
-      ? categoryFiltered.filter(a => 
+      ? categoryFiltered.filter(a =>
           filters.tagIds?.some(tagId => a.tags.some(t => t.id === tagId))
         )
       : categoryFiltered;
@@ -120,6 +94,12 @@ const Stats: React.FC = () => {
 
     setStatsData(categoryStats);
   };
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      calculateStats();
+    }
+  }, [activities, filters]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -189,7 +169,7 @@ const Stats: React.FC = () => {
             ))}
           </select>
         </div>
-        
+
         <div className="filter-group tags-filter">
           <label className="filter-label">Tags:</label>
           <div className="tags-container">
@@ -199,7 +179,7 @@ const Stats: React.FC = () => {
                   type="checkbox"
                   name="tagIds"
                   value={tag.id}
-                  checked={filters.tagIds?.includes(tag.id) || false}
+                  checked={filters.tagIds?.includes(tag.id!) || false}
                   onChange={handleFilterChange}
                 />
                 <span className="tag-name" style={{ color: tag.color }}>{tag.name}</span>
@@ -208,7 +188,7 @@ const Stats: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="stats-summary">
         <div className="total-time">
           <h3>Total Time: {formatTime(totalTime)}</h3>

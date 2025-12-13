@@ -1,3 +1,9 @@
-import TagManagement from "./TagManagement";
+import TagManagement from "@/app/services/tag/comp/TagManagement";
 
-export default TagManagement;
+const TagConfig = () => {
+  return (
+    <TagManagement/>
+  );
+};
+
+export default TagConfig;

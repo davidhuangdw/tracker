@@ -1,96 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import './CategoryConfig.css';
-import {Category, CreateCategoryDto, UpdateCategoryDto} from "@/app/services/category/domain/types.ts";
-import {categoryApi} from "@/app/services/category/domain/api.ts";
+import React, {FC, useState} from 'react';
+import './CategoryManagement.css';
+import {Category} from "@/app/services/category/types.ts";
+import {
+  useCreateCategory,
+  useDeleteCategory,
+  useFetchCategories,
+  useUpdateCategory
+} from "@/app/services/category/api.ts";
 
-const CategoryConfig: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+const defaultCateInput: Category = {
+  name: '',
+  color: '#3498db',
+  description: ''
+}
+
+const CategoryManagement: FC = () => {
   const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    color: '#3498db',
-    description: ''
-  });
-  const [loading, setLoading] = useState(false);
+  const [inputCategory, setInputCategory] = useState(defaultCateInput);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  const [categories, , reLoad] = useFetchCategories();
+  const [create, creating] = useCreateCategory();
+  const [update, updating] = useUpdateCategory();
+  const [deleteCategory] = useDeleteCategory();
+  const loading = creating || updating;
 
-  const fetchCategories = async () => {
+  const onSave = async () => {
     try {
-      const data = await categoryApi.getAll();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (editingCategory) {
-        const updateData: UpdateCategoryDto = {
-          name: formData.name,
-          color: formData.color,
-          description: formData.description
-        };
-        await categoryApi.update(editingCategory.id, updateData);
+      if (inputCategory.id) {
+        await update(inputCategory.id, inputCategory);
       } else {
-        const createData: CreateCategoryDto = {
-          name: formData.name,
-          color: formData.color,
-          description: formData.description
-        };
-        await categoryApi.create(createData);
+        await create(inputCategory);
       }
 
-      await fetchCategories();
+      await reLoad();
       handleCloseModal();
     } catch (error) {
       console.error('Error saving category:', error);
-    } finally {
-      setLoading(false);
-    }
+  }
   };
 
   const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      color: category.color,
-      description: category.description || ''
-    });
+    setInputCategory({...category});
     setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
-        await categoryApi.delete(id);
-        await fetchCategories();
+        await deleteCategory(id);
+        await reLoad();
       } catch (error) {
         console.error('Error deleting category:', error);
       }
     }
   };
 
-  const handleCloseModal = () => {
+  function handleCloseModal () {
     setShowModal(false);
-    setEditingCategory(null);
-    setFormData({
-      name: '',
-      color: '#3498db',
-      description: ''
-    });
-  };
+    setInputCategory(defaultCateInput);
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setInputCategory(prev => ({
       ...prev,
       [name]: value
     }));
@@ -99,7 +71,7 @@ const CategoryConfig: React.FC = () => {
   return (
     <div className="category-management-page">
       <div className="page-header">
-        <h2>Category Config</h2>
+        <h2>Category Management</h2>
         <button 
           className="btn-primary"
           onClick={() => setShowModal(true)}
@@ -127,7 +99,7 @@ const CategoryConfig: React.FC = () => {
                 </button>
                 <button 
                   className="btn-delete"
-                  onClick={() => handleDelete(category.id)}
+                  onClick={() => handleDelete(category.id!)}
                 >
                   Delete
                 </button>
@@ -141,16 +113,16 @@ const CategoryConfig: React.FC = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>{editingCategory ? 'Edit Category' : 'Add Category'}</h3>
+              <h3>{inputCategory?.id ? 'Edit' : 'Add'} Category</h3>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={onSave}>
               <div className="form-group">
                 <label>Category Name</label>
                 <input
                   type="text"
                   name="name"
-                  value={formData.name}
+                  value={inputCategory.name}
                   onChange={handleInputChange}
                   required
                 />
@@ -160,7 +132,7 @@ const CategoryConfig: React.FC = () => {
                 <input
                   type="color"
                   name="color"
-                  value={formData.color}
+                  value={inputCategory.color}
                   onChange={handleInputChange}
                 />
               </div>
@@ -168,7 +140,7 @@ const CategoryConfig: React.FC = () => {
                 <label>Description</label>
                 <textarea
                   name="description"
-                  value={formData.description}
+                  value={inputCategory.description}
                   onChange={handleInputChange}
                   rows={3}
                 />
@@ -176,7 +148,7 @@ const CategoryConfig: React.FC = () => {
               <div className="modal-actions">
                 <button type="button" onClick={handleCloseModal}>Cancel</button>
                 <button type="submit" disabled={loading}>
-                  {loading ? 'Saving...' : (editingCategory ? 'Update' : 'Create')}
+                  {loading ? 'Saving...' : (inputCategory?.id ? 'Update' : 'Create')}
                 </button>
               </div>
             </form>
@@ -187,4 +159,4 @@ const CategoryConfig: React.FC = () => {
   );
 };
 
-export default CategoryConfig;
+export default CategoryManagement;
