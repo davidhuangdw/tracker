@@ -7,11 +7,11 @@ import (
 	"runtime/debug"
 	"time"
 
+	"example.com/tracker/domains/activity/activity_builder"
+	"example.com/tracker/domains/category/category_builder"
+	"example.com/tracker/domains/tag/tag_builder"
 	"example.com/tracker/internal/infra/db"
 	"example.com/tracker/internal/infra/router"
-	"example.com/tracker/services/activity/activity_builder"
-	"example.com/tracker/services/category/category_builder"
-	"example.com/tracker/services/tag/tag_builder"
 	"github.com/gin-gonic/gin"
 )
 

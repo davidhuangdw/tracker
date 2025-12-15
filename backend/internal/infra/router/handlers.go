@@ -1,9 +1,9 @@
 package router
 
 import (
-	"example.com/tracker/services/activity"
-	"example.com/tracker/services/category"
-	"example.com/tracker/services/tag"
+	"example.com/tracker/domains/activity"
+	"example.com/tracker/domains/category"
+	"example.com/tracker/domains/tag"
 )
 
 type Handlers struct {

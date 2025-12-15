@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import './Stats.css';
-import {useFetchTags} from "@/app/services/tag/api.ts";
-import {useFetchCategories} from "@/app/services/category/api.ts";
-import {useFetchActivities} from "@/app/services/activity/api.ts";
+import {
+  Box,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Card,
+  CardContent,
+  Alert
+} from '@mui/material';
+import {useFetchTags} from "@/app/domains/tag/api.ts";
+import {useFetchCategories} from "@/app/domains/category/api.ts";
+import {useFetchActivities} from "@/app/domains/activity/api.ts";
 
 interface FilterOptions {
   period: 'day' | 'week' | 'month';
@@ -23,7 +36,6 @@ const Stats: React.FC = () => {
   const [activities] = useFetchActivities();
   const [categories] = useFetchCategories();
   const [tags] = useFetchTags();
-
 
   const calculateStats = () => {
     const now = moment();
@@ -101,7 +113,7 @@ const Stats: React.FC = () => {
     }
   }, [activities, filters]);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleFilterChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     
     if (type === 'checkbox') {
@@ -135,95 +147,138 @@ const Stats: React.FC = () => {
   };
 
   return (
-    <div className="stats-page">
-      <div className="stats-header">
-        <h2>Time Usage Statistics</h2>
-      </div>
-      
-      <div className="filters-container">
-        <div className="filter-group">
-          <label className="filter-label">Period:</label>
-          <select
-            name="period"
-            value={filters.period}
-            onChange={handleFilterChange}
-            className="form-select"
-          >
-            <option value="day">Day</option>
-            <option value="week">Week</option>
-            <option value="month">Month</option>
-          </select>
-        </div>
-        
-        <div className="filter-group">
-          <label className="filter-label">Category:</label>
-          <select
-            name="categoryId"
-            value={filters.categoryId || ''}
-            onChange={handleFilterChange}
-            className="form-select"
-          >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-        </div>
+    <Box >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Time Usage Statistics
+        </Typography>
+      </Box>
 
-        <div className="filter-group tags-filter">
-          <label className="filter-label">Tags:</label>
-          <div className="tags-container">
-            {tags.map(tag => (
-              <label key={tag.id} className="tag-checkbox">
-                <input
-                  type="checkbox"
-                  name="tagIds"
-                  value={tag.id}
-                  checked={filters.tagIds?.includes(tag.id!) || false}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Filters
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel>Period</InputLabel>
+                <Select
+                  name="period"
+                  value={filters.period}
                   onChange={handleFilterChange}
-                />
-                <span className="tag-name" style={{ color: tag.color }}>{tag.name}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="stats-summary">
-        <div className="total-time">
-          <h3>Total Time: {formatTime(totalTime)}</h3>
-        </div>
-      </div>
-      
-      <div className="stats-charts">
-        <div className="chart-container">
-          <h3>Time by Category</h3>
-          <div className="chart-content">
-            {statsData.length > 0 ? (
-              <div className="pie-chart">
-                {/* Simple pie chart visualization */}
-                <div className="chart-legend">
-                  {statsData.map((item, index) => (
-                    <div key={index} className="legend-item">
-                      <div 
-                        className="legend-color" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="legend-name">{item.name}</span>
-                      <span className="legend-value">{formatTime(item.value)}</span>
-                    </div>
+                  label="Period"
+                >
+                  <MenuItem value="day">Day</MenuItem>
+                  <MenuItem value="week">Week</MenuItem>
+                  <MenuItem value="month">Month</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  name="categoryId"
+                  value={filters.categoryId || ''}
+                  onChange={handleFilterChange}
+                  label="Category"
+                >
+                  <MenuItem value="">All Categories</MenuItem>
+                  {categories.map(category => (
+                    <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
                   ))}
-                </div>
-              </div>
-            ) : (
-              <div className="no-data">
-                <p>No data available for the selected filters</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <FormControl fullWidth>
+                <Typography variant="body2" gutterBottom>
+                  Tags
+                </Typography>
+                <Box sx={{ maxHeight: 120, overflow: 'auto' }}>
+                  {tags.map(tag => (
+                    <FormControlLabel
+                      key={tag.id}
+                      control={
+                        <Checkbox
+                          name="tagIds"
+                          value={tag.id}
+                          checked={filters.tagIds?.includes(tag.id!) || false}
+                          onChange={handleFilterChange}
+                        />
+                      }
+                      label={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              backgroundColor: tag.color,
+                              borderRadius: '50%',
+                              mr: 1
+                            }}
+                          />
+                          {tag.name}
+                        </Box>
+                      }
+                    />
+                  ))}
+                </Box>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Summary
+          </Typography>
+          <Typography variant="h4" color="primary">
+            Total Time: {formatTime(totalTime)}
+          </Typography>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Time by Category
+          </Typography>
+          {statsData.length > 0 ? (
+            <Box>
+              {statsData.map((item, index) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      backgroundColor: item.color,
+                      borderRadius: 2,
+                      mr: 2
+                    }}
+                  />
+                  <Typography variant="body1" sx={{ flex: 1 }}>
+                    {item.name}
+                  </Typography>
+                  <Typography variant="body1" fontWeight="bold">
+                    {formatTime(item.value)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Alert severity="info">
+              No data available for the selected filters
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

@@ -1,4 +1,4 @@
-import TagManagement from "@/app/services/tag/comp/TagManagement";
+import TagManagement from "@/app/domains/tag/comp/TagManagement";
 
 const TagConfig = () => {
   return (

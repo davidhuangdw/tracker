@@ -1,4 +1,4 @@
-import CategoryManagement from "@/app/services/category/comp/CategoriyManagement";
+import CategoryManagement from "@/app/domains/category/comp/CategoryManagement";
 
 const CategoryConfigPage = () => {
   return <CategoryManagement/>

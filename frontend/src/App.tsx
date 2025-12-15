@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from '@/lib/components/Layout';
+import Layout from '@/app/components/Layout.tsx';
 import './App.css';
 import {Calendar, CategoryManagement, Stats, TagManagement} from "@/app/components/pages";
 
