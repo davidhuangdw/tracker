@@ -2,22 +2,16 @@ import React from 'react';
 import moment, {Moment} from 'moment';
 import {Grid, TextField} from '@mui/material';
 
-// Convert ISO string to local datetime format for input field
 const TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
-const isoToLocalDateTime = (isoString?: string | Moment): string => {
-  return moment(isoString).format(TIME_FORMAT);
-};
-
-// Convert local datetime string to ISO format
-const localDateTimeToISO = (localDateTime?: string): string => {
-  return moment(localDateTime).toISOString();
-};
+function toLocalDateTime(time?: Moment): string {
+  return moment(time).format(TIME_FORMAT);
+}
 
 const EditActivityDate: React.FC<{
-  from?: string;
-  to?: string;
-  onFromChange: (isoString: string) => void;
-  onToChange: (isoString: string) => void;
+  from?: Moment;
+  to?: Moment;
+  onFromChange: (momentObj: Moment) => void;
+  onToChange: (momentObj: Moment) => void;
 }> = ({from, to, onFromChange, onToChange}) => {
   return (
     <Grid container spacing={2} sx={{mt: 1}}>
@@ -26,8 +20,8 @@ const EditActivityDate: React.FC<{
           fullWidth
           label="From"
           type="datetime-local"
-          value={isoToLocalDateTime(from)}
-          onChange={(e) => onFromChange(localDateTimeToISO(e.target.value))}
+          value={toLocalDateTime(from)}
+          onChange={(e) => onFromChange(moment(e.target.value))}
           required
         />
       </Grid>
@@ -36,8 +30,8 @@ const EditActivityDate: React.FC<{
           fullWidth
           label="To"
           type="datetime-local"
-          value={isoToLocalDateTime(to)}
-          onChange={(e) => onToChange(localDateTimeToISO(e.target.value))}
+          value={toLocalDateTime(to)}
+          onChange={(e) => onToChange(moment(e.target.value))}
           required
         />
       </Grid>

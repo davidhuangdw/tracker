@@ -1,12 +1,12 @@
 package tag_builder
 
 import (
-	"database/sql"
-
 	"example.com/tracker/domains/tag"
+	"gorm.io/gorm"
+
 	"example.com/tracker/domains/tag/internal/impl"
 )
 
-func NewTagService(db *sql.DB) tag.TagService {
+func NewTagService(db *gorm.DB) tag.TagService {
 	return &impl.TagServiceImpl{DB: db}
 }

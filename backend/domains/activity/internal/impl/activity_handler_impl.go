@@ -1,8 +1,8 @@
 package impl
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"example.com/tracker/domains/activity"
@@ -21,7 +21,7 @@ func (h *ActivityHandlerImpl) CreateActivity(c *gin.Context) {
 	}
 
 	// Set default user ID for now
-	activity.UserID = 1
+	//activity.UserID = 1
 
 	if err := h.ActivityService.CreateActivity(&activity); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -32,13 +32,19 @@ func (h *ActivityHandlerImpl) CreateActivity(c *gin.Context) {
 }
 
 func (h *ActivityHandlerImpl) GetActivity(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	activity, err := h.ActivityService.GetActivityByID(id)
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	activity, err := h.ActivityService.GetActivityByID(idUint)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Activity not found"})
 		return
@@ -48,7 +54,7 @@ func (h *ActivityHandlerImpl) GetActivity(c *gin.Context) {
 }
 
 func (h *ActivityHandlerImpl) GetActivities(c *gin.Context) {
-	userID := 1 // Default user ID
+	//userID := uint(1) // Default user ID
 
 	// Parse from and to parameters
 	fromStr := c.Query("from")
@@ -56,7 +62,7 @@ func (h *ActivityHandlerImpl) GetActivities(c *gin.Context) {
 
 	from, err := time.Parse(time.RFC3339, fromStr)
 	if err != nil {
-		from = time.Now().AddDate(0, 0, -7) // Default to 7 days ago
+		from = time.Now().AddDate(0, 0, -31) // Default to 31 days ago
 	}
 
 	to, err := time.Parse(time.RFC3339, toStr)
@@ -64,7 +70,7 @@ func (h *ActivityHandlerImpl) GetActivities(c *gin.Context) {
 		to = time.Now() // Default to now
 	}
 
-	activities, err := h.ActivityService.GetActivitiesByUserID(userID, from, to)
+	activities, err := h.ActivityService.GetActivities(from, to)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -74,9 +80,15 @@ func (h *ActivityHandlerImpl) GetActivities(c *gin.Context) {
 }
 
 func (h *ActivityHandlerImpl) UpdateActivity(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
@@ -86,8 +98,8 @@ func (h *ActivityHandlerImpl) UpdateActivity(c *gin.Context) {
 		return
 	}
 
-	activity.ID = id
-	activity.UserID = 1 // Default user ID
+	activity.ID = idUint
+	//activity.UserID = 1 // Default user ID
 
 	if err := h.ActivityService.UpdateActivity(&activity); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -98,13 +110,19 @@ func (h *ActivityHandlerImpl) UpdateActivity(c *gin.Context) {
 }
 
 func (h *ActivityHandlerImpl) DeleteActivity(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	if err := h.ActivityService.DeleteActivity(id); err != nil {
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	if err := h.ActivityService.DeleteActivity(idUint); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

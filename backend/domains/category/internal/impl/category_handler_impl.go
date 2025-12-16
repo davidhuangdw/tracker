@@ -1,8 +1,8 @@
 package impl
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"example.com/tracker/domains/category"
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func (h *CategoryHandlerImpl) CreateCategory(c *gin.Context) {
 		return
 	}
 
-	category.UserID = 1 // Default user ID
+	//category.UserID = 1 // Default user ID
 
 	if err := h.CategoryService.CreateCategory(&category); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -36,15 +36,21 @@ func (h *CategoryHandlerImpl) CreateCategory(c *gin.Context) {
 }
 
 func (h *CategoryHandlerImpl) GetCategory(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	category, err := h.CategoryService.GetCategoryByID(id)
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	category, err := h.CategoryService.GetCategoryByID(idUint)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CategoryManagement not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
 		return
 	}
 
@@ -52,9 +58,9 @@ func (h *CategoryHandlerImpl) GetCategory(c *gin.Context) {
 }
 
 func (h *CategoryHandlerImpl) GetCategories(c *gin.Context) {
-	userID := 1 // Default user ID
+	//userID := uint(1) // Default user ID
 
-	categories, err := h.CategoryService.GetCategoriesByUserID(userID)
+	categories, err := h.CategoryService.GetCategories()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -64,9 +70,15 @@ func (h *CategoryHandlerImpl) GetCategories(c *gin.Context) {
 }
 
 func (h *CategoryHandlerImpl) UpdateCategory(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
@@ -76,8 +88,8 @@ func (h *CategoryHandlerImpl) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	category.ID = id
-	category.UserID = 1 // Default user ID
+	category.ID = idUint
+	//category.UserID = 1 // Default user ID
 
 	if err := h.CategoryService.UpdateCategory(&category); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -88,13 +100,19 @@ func (h *CategoryHandlerImpl) UpdateCategory(c *gin.Context) {
 }
 
 func (h *CategoryHandlerImpl) DeleteCategory(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	if err := h.CategoryService.DeleteCategory(id); err != nil {
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	if err := h.CategoryService.DeleteCategory(idUint); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

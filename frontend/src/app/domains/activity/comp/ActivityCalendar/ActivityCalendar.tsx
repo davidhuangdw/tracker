@@ -97,7 +97,7 @@ const ActivityCalendar: React.FC = () => {
           step={60}
           showMultiDayTimes
           eventPropGetter={eventPropGetter}
-          dayLayoutAlgorithm="no-overlap"
+          dayLayoutAlgorithm="overlap"
           components={{event: ActivityEventView}}
           // length={1}
         />

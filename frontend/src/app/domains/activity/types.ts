@@ -1,10 +1,11 @@
 import {Tag} from "@/app/domains/tag/types.ts";
+import {Moment} from 'moment';
 
 export interface Activity {
   id?: number;
   user_id?: number;
-  from?: string;
-  to?: string;
+  from?: Moment;
+  to?: Moment;
   name?: string;
   category_id?: number;
   tags?: Tag[];
@@ -13,16 +14,16 @@ export interface Activity {
 }
 
 // export interface CreateActivityDto {
-//   from: string;
-//   to: string;
+//   from: Moment;
+//   to: Moment;
 //   name: string;
 //   category_id: number;
 //   tags: Tag[];
 // }
 //
 // export interface UpdateActivityDto {
-//   from: string;
-//   to: string;
+//   from: Moment;
+//   to: Moment;
 //   name: string;
 //   category_id: number;
 //   tags: Tag[];

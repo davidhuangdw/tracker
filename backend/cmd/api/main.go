@@ -1,43 +1,38 @@
 package main
 
 import (
-	"context"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"example.com/tracker/internal/app"
 )
 
 func main() {
-	server, err := app.InitApp()
+	// Initialize application
+	run, err := app.Init()
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
-	defer app.CleanupApp()
 
-	log.Printf("Server starting on %v ...\n", server.Addr)
+	// Setup graceful shutdown
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
+	// Start Gin server
 	go func() {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := run(); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
+	log.Println("Server started. Press Ctrl+C to shutdown.")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// Wait for shutdown signal
+	<-shutdown
+	log.Println("Shutdown signal received, shutting down...")
 
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
-	}
-
-	log.Println("Server exited")
+	app.Shutdown()
+	log.Println("Server shutdown completed")
 }

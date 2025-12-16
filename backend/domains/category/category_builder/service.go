@@ -1,12 +1,12 @@
 package category_builder
 
 import (
-	"database/sql"
-
 	"example.com/tracker/domains/category"
+	"gorm.io/gorm"
+
 	"example.com/tracker/domains/category/internal/impl"
 )
 
-func NewCategoryService(db *sql.DB) category.CategoryService {
+func NewCategoryService(db *gorm.DB) category.CategoryService {
 	return &impl.CategoryServiceImpl{DB: db}
 }

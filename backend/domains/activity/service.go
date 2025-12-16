@@ -1,11 +1,13 @@
 package activity
 
-import "time"
+import (
+	"time"
+)
 
 type ActivityService interface {
 	CreateActivity(activity *Activity) error
-	GetActivityByID(id int) (*Activity, error)
-	GetActivitiesByUserID(userID int, from, to time.Time) ([]Activity, error)
+	GetActivityByID(id uint) (*Activity, error)
+	GetActivities(from, to time.Time) ([]Activity, error)
 	UpdateActivity(activity *Activity) error
-	DeleteActivity(id int) error
+	DeleteActivity(id uint) error
 }

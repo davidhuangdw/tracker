@@ -1,30 +1,21 @@
 package router
 
 import (
+	"log"
+
+	"example.com/tracker/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter(handlers Handlers) *gin.Engine {
 	r := gin.Default()
 
-	// CORS middleware
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	})
+	r.Use(WithCORS)
 
 	// API routes
 	api := r.Group("/api")
 	{
-		// Timetrack routes
+		// Activity routes
 		activity := api.Group("/activities")
 		{
 			activity.POST("", handlers.CreateActivity)
@@ -34,6 +25,16 @@ func SetupRouter(handlers Handlers) *gin.Engine {
 			activity.DELETE("/:id", handlers.DeleteActivity)
 		}
 
+		// ActivityTag routes
+		activityTag := api.Group("/activity-tags")
+		{
+			activityTag.POST("", handlers.CreateActivityTag)
+			activityTag.GET("/activity/:activity_id", handlers.GetActivityTagsByActivityID)
+			activityTag.GET("/tag/:tag_id", handlers.GetActivityTagsByTagID)
+			activityTag.DELETE("/activity/:activity_id/tag/:tag_id", handlers.DeleteActivityTag)
+		}
+
+		// Category routes
 		categories := api.Group("/categories")
 		{
 			categories.POST("", handlers.CreateCategory)
@@ -43,6 +44,7 @@ func SetupRouter(handlers Handlers) *gin.Engine {
 			categories.DELETE("/:id", handlers.DeleteCategory)
 		}
 
+		// Tag routes
 		tags := api.Group("/tags")
 		{
 			tags.POST("", handlers.CreateTag)
@@ -54,4 +56,23 @@ func SetupRouter(handlers Handlers) *gin.Engine {
 	}
 
 	return r
+}
+
+func StartServer(handlers Handlers) error {
+	cfg := config.GetConfig()
+
+	if !cfg.App.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	// Setup routes using the provided handlers
+	r := SetupRouter(handlers)
+
+	port := cfg.App.Port
+	if port == "" {
+		port = ":8080"
+	}
+
+	log.Printf("Starting server on %s", port)
+	return r.Run(port)
 }

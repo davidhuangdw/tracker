@@ -2,8 +2,8 @@ package tag
 
 type TagService interface {
 	CreateTag(tag *Tag) error
-	GetTagByID(id int) (*Tag, error)
-	GetTagsByUserID(userID int) ([]Tag, error)
+	GetTagByID(id uint) (*Tag, error)
+	GetTags() ([]Tag, error)
 	UpdateTag(tag *Tag) error
-	DeleteTag(id int) error
+	DeleteTag(id uint) error
 }

@@ -1,0 +1,16 @@
+[app]
+name = "Time Tracker"
+version = "1.0.0"
+port = ":8080"
+debug = true
+
+[database]
+driver = "sqlite"
+dsn = "tmp/tracker.db?_journal_mode=WAL&_sync=NORMAL&_busy_timeout=5000"
+max_open_conns = 20
+max_idle_conns = 10
+conn_max_lifetime = 3600
+
+[log]
+level = "info"
+format = "text"

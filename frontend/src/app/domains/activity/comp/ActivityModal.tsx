@@ -17,6 +17,7 @@ import SelectCategory from "@/app/domains/category/comp/SelectCategory.tsx";
 import SelectTags from "@/app/domains/tag/comp/SelectTags.tsx";
 import EditActivityDate from "./EditActivityDate.tsx";
 import { useConfirm } from "@/lib/hooks/confirmDialog";
+import moment from 'moment';
 
 const validActivity = (a: Activity) => {
   return !!(a.category_id && a.from && a.to);
@@ -41,8 +42,8 @@ const ActivityModal: React.FC<{
   const { showConfirm } = useConfirm();
 
   const [inputActivity, setInputActivity] = useState<Activity>({
-    from: start ? new Date(start).toISOString() : '',
-    to: end ? new Date(end).toISOString() : '',
+    from: start ? moment(start) : undefined,
+    to: end ? moment(end) : undefined,
     ...activity
   });
   const {tags: inputTags = EMPTY_ARR} = inputActivity;

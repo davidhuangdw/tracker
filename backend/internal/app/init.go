@@ -1,82 +1,58 @@
 package app
 
 import (
-	"fmt"
 	"log"
-	"net/http"
-	"runtime/debug"
-	"time"
 
 	"example.com/tracker/domains/activity/activity_builder"
+	"example.com/tracker/domains/activity_tag/activity_tag_builder"
 	"example.com/tracker/domains/category/category_builder"
 	"example.com/tracker/domains/tag/tag_builder"
+	"example.com/tracker/internal/config"
 	"example.com/tracker/internal/infra/db"
 	"example.com/tracker/internal/infra/router"
-	"github.com/gin-gonic/gin"
 )
 
-func InitApp() (*http.Server, error) {
-	if err := db.InitDB(); err != nil {
+func Init() (func() error, error) {
+	// Load configuration
+	if err := config.LoadConfig("config.toml"); err != nil {
+		log.Fatalf("Warning: Could not load config.toml, using defaults: %v", err)
+	}
+
+	// Initialize GORM database
+	if err := db.InitGormDB(); err != nil {
 		return nil, err
 	}
 
-	if err := db.InitSchema(); err != nil {
+	// Run database migrations
+	if err := db.RunMigrations(); err != nil {
 		return nil, err
 	}
 
-	activityService := activity_builder.NewActivityService(db.DB)
-	categoryService := category_builder.NewCategoryService(db.DB)
-	tagService := tag_builder.NewTagService(db.DB)
+	// Initialize domain services & handlers
+	activityService := activity_builder.NewActivityService(db.GormDB)
+	categoryService := category_builder.NewCategoryService(db.GormDB)
+	tagService := tag_builder.NewTagService(db.GormDB)
+	activityTagService := activity_tag_builder.NewActivityTagService(db.GormDB)
 
-	handler := &router.Handlers{
+	handlers := router.Handlers{
 		activity_builder.NewActivityHandler(activityService),
 		category_builder.NewCategoryHandler(categoryService),
 		tag_builder.NewTagHandler(tagService),
+		activity_tag_builder.NewActivityTagHandler(activityTagService),
 	}
 
-	r := router.SetupRouter(*handler)
+	log.Println("Application initialized successfully")
 
-	r.Use(CustomRecovery())
-	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		return fmt.Sprintf("[%s] %s %s %d %s \"%s\"\n",
-			param.TimeStamp.Format(time.RFC3339),
-			param.Method,
-			param.Path,
-			param.StatusCode,
-			param.Latency,
-			param.ErrorMessage,
-		)
-	}))
-
-	server := &http.Server{
-		Addr:         ":8080",
-		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  20 * time.Second,
+	run := func() error {
+		return router.StartServer(handlers)
 	}
 
-	return server, nil
+	return run, nil
 }
 
-func CleanupApp() {
-	db.CloseDB()
-}
-
-func CustomRecovery() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
-			if err := recover(); err != nil {
-				// Log detailed error information including stack trace
-				log.Printf("Panic recovered: %v\n", err)
-				log.Printf("Stack trace: %s\n", string(debug.Stack()))
-
-				c.AbortWithStatusJSON(500, gin.H{
-					"message": "Internal server error",
-					"error":   fmt.Sprintf("%v", err),
-				})
-			}
-		}()
-		c.Next()
+func Shutdown() {
+	if err := db.CloseGormDB(); err != nil {
+		log.Printf("Error closing database: %v", err)
 	}
+	log.Println("Application shutdown completed")
 }

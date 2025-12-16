@@ -1,8 +1,8 @@
 package impl
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 
 	"example.com/tracker/domains/tag"
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func (h *TagHandlerImpl) CreateTag(c *gin.Context) {
 		return
 	}
 
-	tag.UserID = 1 // Default user ID
+	//tag.UserID = 1 // Default user ID
 
 	if err := h.TagService.CreateTag(&tag); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -36,13 +36,19 @@ func (h *TagHandlerImpl) CreateTag(c *gin.Context) {
 }
 
 func (h *TagHandlerImpl) GetTag(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	tag, err := h.TagService.GetTagByID(id)
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	tag, err := h.TagService.GetTagByID(idUint)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Tag not found"})
 		return
@@ -52,9 +58,9 @@ func (h *TagHandlerImpl) GetTag(c *gin.Context) {
 }
 
 func (h *TagHandlerImpl) GetTags(c *gin.Context) {
-	userID := 1 // Default user ID
+	//userID := uint(1) // Default user ID
 
-	tags, err := h.TagService.GetTagsByUserID(userID)
+	tags, err := h.TagService.GetTags()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -64,9 +70,15 @@ func (h *TagHandlerImpl) GetTags(c *gin.Context) {
 }
 
 func (h *TagHandlerImpl) UpdateTag(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
 		return
 	}
 
@@ -76,8 +88,8 @@ func (h *TagHandlerImpl) UpdateTag(c *gin.Context) {
 		return
 	}
 
-	tag.ID = id
-	tag.UserID = 1 // Default user ID
+	tag.ID = idUint
+	//tag.UserID = 1 // Default user ID
 
 	if err := h.TagService.UpdateTag(&tag); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -88,13 +100,19 @@ func (h *TagHandlerImpl) UpdateTag(c *gin.Context) {
 }
 
 func (h *TagHandlerImpl) DeleteTag(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
-	if err := h.TagService.DeleteTag(id); err != nil {
+	var idUint uint
+	if _, err := fmt.Sscanf(id, "%d", &idUint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	if err := h.TagService.DeleteTag(idUint); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

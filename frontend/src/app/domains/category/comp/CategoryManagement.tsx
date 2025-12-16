@@ -45,8 +45,9 @@ const CategoryManagement: React.FC = () => {
   };
 
   const onDelete = (id: number) => {
-    showConfirm('Are you sure you want to delete this category?', () => {
-      deleteCategory(id).then(() => reLoad());
+    showConfirm('Are you sure you want to delete this category?', async () => {
+      await deleteCategory(id);
+      reLoad();
     });
   };
 

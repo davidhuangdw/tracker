@@ -13,8 +13,8 @@ export interface ActivityEvent extends Event {
 
 export const convertToEvents = (activities: Activity[]): ActivityEvent[] => {
   return activities.map(activity => {
-    const start = moment(activity.from);
-    const end = moment(activity.to);
+    const start = activity.from || moment();
+    const end = activity.to || moment();
     const isMultiDay = end.diff(start, 'days') > 0;
     
     return {
