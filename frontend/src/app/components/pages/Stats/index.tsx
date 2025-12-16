@@ -1,3 +1,3 @@
-import Stats from "./Stats";
+const Stats = () => null;
 
 export default Stats;

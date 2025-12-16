@@ -5,19 +5,21 @@ import {useFetchTags} from "@/app/domains/tag/api.ts";
 
 interface TagsCxtType  {
   tags: Tag[];
+  loading: boolean;
   refetch: () => void;
 }
 
 const TagsContext = createContext<TagsCxtType>({
   tags: EMPTY_ARR,
+  loading: false,
   refetch: () => void 0
 });
 
 export const TagsCtxProvider: FC<{ children: ReactNode }> = ({children}) => {
-  const [tags, refetch] = useFetchTags()
+  const [tags, loading, refetch] = useFetchTags()
   const ctx: TagsCxtType = useMemo(()=> ({
-    tags, refetch
-  }), [tags, refetch]);
+    tags, loading, refetch
+  }), [tags, loading, refetch]);
   return (<TagsContext.Provider value={ctx}>
     {children}
   </TagsContext.Provider>);

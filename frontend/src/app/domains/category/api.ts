@@ -1,7 +1,7 @@
 import API from "@/app/constants/api.ts";
 import {EMPTY_ARR} from "@/lib/constants.ts";
 import {Category} from "./types.ts";
-import {useAsyncRun, useFetchData} from "@/lib/utils/api.ts";
+import {useAsyncRun, useFetchData} from "@/lib/hooks/api.ts";
 
 export const useFetchCategories = (): [Category[], boolean, () => void] => {
   const {data, loading, refetch} = useFetchData<Category[]>('/categories');

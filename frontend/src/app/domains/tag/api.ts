@@ -1,7 +1,7 @@
 import API from "@/app/constants/api.ts";
 import {Tag} from "./types.ts";
 import {EMPTY_ARR} from "@/lib/constants.ts";
-import {useAsyncRun, useFetchData} from "@/lib/utils/api.ts";
+import {useAsyncRun, useFetchData} from "@/lib/hooks/api.ts";
 
 export const useFetchTags = (): [Tag[], boolean, () => void] => {
   const {data, loading, refetch} = useFetchData<Tag[]>('/tags');

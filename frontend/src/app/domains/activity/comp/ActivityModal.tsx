@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import moment, { Moment } from 'moment';
+import React, {useCallback, useState} from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -7,33 +6,21 @@ import {
   DialogActions,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
   Box,
-  Grid,
-  Typography,
   IconButton
 } from '@mui/material';
-import { Close, Delete } from '@mui/icons-material';
-import { Tag } from "@/app/domains/tag/types.ts";
-import { Activity } from "@/app/domains/activity/types.ts";
-import { EMPTY_ARR } from "@/lib/constants.ts";
-import CategoriesContext from "@/app/domains/category/comp/CategoriesContext.tsx";
-import TagsContext from "@/app/domains/tag/comp/TagsContext.tsx";
+import {Close, Delete} from '@mui/icons-material';
+import {Tag} from "@/app/domains/tag/types.ts";
+import {Activity} from "@/app/domains/activity/types.ts";
+import {EMPTY_ARR} from "@/lib/constants.ts";
+import SelectCategory from "@/app/domains/category/comp/SelectCategory.tsx";
+import SelectTags from "@/app/domains/tag/comp/SelectTags.tsx";
+import EditActivityDate from "./EditActivityDate.tsx";
+import { useConfirm } from "@/lib/hooks/confirmDialog";
 
-// Convert ISO string to local datetime format for input field
-const TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
-const isoToLocalDateTime = (isoString?: string | Moment): string => {
-  return moment(isoString).format(TIME_FORMAT);
-};
-
-// Convert local datetime string to ISO format
-const localDateTimeToISO = (localDateTime?: string): string => {
-  return moment(localDateTime).toISOString();
-};
+const validActivity = (a: Activity) => {
+  return !!(a.category_id && a.from && a.to);
+}
 
 const ActivityModal: React.FC<{
   show: boolean;
@@ -43,136 +30,89 @@ const ActivityModal: React.FC<{
   activity: Activity | null;
   selectedSlot: { start: Date; end: Date } | null;
 }> = ({
-  show,
-  onClose,
-  onSave,
-  onDelete,
-  activity,
-  selectedSlot,
-}) => {
-  const { start, end } = selectedSlot || {};
-  const { categories } = useContext(CategoriesContext);
-  const { tags } = useContext(TagsContext);
+        show,
+        onClose,
+        onSave,
+        onDelete,
+        activity,
+        selectedSlot,
+      }) => {
+  const {start, end} = selectedSlot || {};
+  const { showConfirm } = useConfirm();
 
   const [inputActivity, setInputActivity] = useState<Activity>({
-    from: moment(start).toISOString(),
-    to: moment(end).toISOString(),
+    from: start ? new Date(start).toISOString() : '',
+    to: end ? new Date(end).toISOString() : '',
     ...activity
   });
-  const { tags: inputTags = EMPTY_ARR } = inputActivity;
+  const {tags: inputTags = EMPTY_ARR} = inputActivity;
+
+  const onChange = useCallback((changes: Activity) => {
+    setInputActivity(prev => ({...prev, ...changes}));
+  }, [setInputActivity]);
 
   const toggleTag = (tag: Tag) => {
     const has = inputTags?.some(t => t.id === tag.id);
-    const tags = has ? inputTags?.filter(t => t.id !== tag.id) : [...inputTags, tag];
-    setInputActivity({ ...inputActivity, tags });
+    const tags = has ? inputTags?.filter(t => t.id !== tag.id) : [...(inputTags || EMPTY_ARR), tag];
+    onChange({tags});
+  };
+
+  const handleDelete = () => {
+    if (activity?.id) {
+      showConfirm('Are you sure you want to delete this activity?', () => {
+        onDelete(activity.id!);
+      });
+    }
   };
 
   return (
     <Dialog open={show} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">
-          {activity ? 'Edit Activity' : 'Add Activity'}
-        </Typography>
+      <DialogTitle sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        {activity ? 'Edit Activity' : 'Add Activity'}
         <IconButton onClick={onClose} size="small">
-          <Close />
+          <Close/>
         </IconButton>
       </DialogTitle>
 
       <DialogContent>
-        <Box component="form" id="activity-form" sx={{ mt: 2 }}>
+        <Box component="form" id="activity-form" sx={{mt: 2}}>
           <TextField
+            multiline
             fullWidth
             label="Name"
             value={inputActivity.name || ''}
-            onChange={(e) => setInputActivity(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) => setInputActivity(prev => ({...prev, name: e.target.value}))}
             margin="normal"
-            required
+            // required
           />
 
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label="From"
-                type="datetime-local"
-                value={isoToLocalDateTime(inputActivity.from)}
-                onChange={(e) => setInputActivity(prev => ({
-                  ...prev,
-                  from: localDateTimeToISO(e.target.value)
-                }))}
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label="To"
-                type="datetime-local"
-                value={isoToLocalDateTime(inputActivity.to)}
-                onChange={(e) => setInputActivity(prev => ({
-                  ...prev,
-                  to: localDateTimeToISO(e.target.value)
-                }))}
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-          </Grid>
+          <EditActivityDate
+            from={inputActivity.from}
+            to={inputActivity.to}
+            onFromChange={(from) => onChange({from})}
+            onToChange={(to) => onChange({to})}
+          />
 
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={inputActivity.category_id || ''}
-              label="Category"
-              onChange={(e) => setInputActivity(prev => ({ 
-                ...prev, 
-                category_id: parseInt(e.target.value as string) 
-              }))}
-            >
-              <MenuItem value="">Select Category</MenuItem>
-              {categories.map(category => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <SelectCategory
+            value={inputActivity.category_id || ''}
+            onChange={(category_id) => onChange({category_id})}
+            required
+            showColorChip
+          />
 
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
-              Tags
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {tags.map(tag => {
-                const selected = inputActivity?.tags?.some(t => t.id === tag.id);
-                return (
-                  <Chip
-                    key={tag.id}
-                    label={tag.name}
-                    onClick={() => toggleTag(tag)}
-                    variant={selected ? "filled" : "outlined"}
-                    sx={{
-                      backgroundColor: selected ? tag.color : 'transparent',
-                      color: selected ? 'white' : tag.color,
-                      borderColor: tag.color,
-                      '&:hover': {
-                        backgroundColor: selected ? tag.color : `${tag.color}20`,
-                      }
-                    }}
-                  />
-                );
-              })}
-            </Box>
-          </Box>
+          <SelectTags
+            selectedTags={inputTags}
+            onTagToggle={toggleTag}
+            label="Tags"
+          />
         </Box>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3 }}>
+      <DialogActions sx={{px: 3, pb: 3}}>
         {activity && (
           <Button
-            startIcon={<Delete />}
-            onClick={() => activity.id && onDelete(activity.id)}
+            startIcon={<Delete/>}
+            onClick={handleDelete}
             color="error"
             variant="outlined"
           >
@@ -182,10 +122,10 @@ const ActivityModal: React.FC<{
         <Button onClick={onClose} variant="outlined">
           Cancel
         </Button>
-        <Button 
-          onClick={() => onSave(inputActivity)} 
+        <Button
+          onClick={() => onSave(inputActivity)}
           variant="contained"
-          disabled={!inputActivity.name || !inputActivity.category_id}
+          disabled={!validActivity(inputActivity)}
         >
           Save
         </Button>

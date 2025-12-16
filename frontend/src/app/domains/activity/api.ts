@@ -1,7 +1,7 @@
 import {Activity} from "@/app/domains/activity/types.ts";
 import API from "@/app/constants/api.ts";
 import {EMPTY_ARR} from "@/lib/constants.ts";
-import {useAsyncRun, useFetchData} from "@/lib/utils/api.ts";
+import {useAsyncRun, useFetchData} from "@/lib/hooks/api.ts";
 
 export const useFetchActivities =
   (from?: string, to?: string): [Activity[], boolean, () => void] => {

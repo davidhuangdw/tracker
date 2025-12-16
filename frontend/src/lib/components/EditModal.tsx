@@ -6,68 +6,57 @@ import {
   DialogActions,
   TextField,
   Button,
-  Typography,
   IconButton,
-  CircularProgress,
-  Box
+  CircularProgress
 } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import {Close} from '@mui/icons-material';
 import ColorPicker from './ColorPicker';
+import {Category} from "@/app/domains/category/types.ts";
+import {Tag} from "@/app/domains/tag/types.ts";
 
-export interface EditModalProps {
+const EditModal: React.FC<{
   open: boolean;
   onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSave: () => void;
   title: string;
-  entity: {
-    id?: number;
-    name: string;
-    color: string;
-    description: string;
-  };
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onColorChange: (color: string) => void;
+  entity: Category | Tag;
+  onChange: (changes: Category | Tag) => void;
   saving: boolean;
   entityType: 'category' | 'tag';
-}
-
-const EditModal: React.FC<EditModalProps> = ({
-  open,
-  onClose,
-  onSubmit,
-  title,
-  entity,
-  onInputChange,
-  onColorChange,
-  saving,
-  entityType
-}) => {
+}> = ({
+        open,
+        onClose,
+        onSave,
+        title,
+        entity,
+        onChange,
+        saving,
+        entityType
+      }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">
-          {title}
-        </Typography>
+      <DialogTitle sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        {title}
         <IconButton onClick={onClose} size="small">
-          <Close />
+          <Close/>
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={onSubmit}>
+      <form>
         <DialogContent>
           <TextField
             fullWidth
             label={`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Name`}
             name="name"
             value={entity.name}
-            onChange={onInputChange}
+            onChange={(e) => onChange({...entity, name: e.target.value})}
             margin="normal"
             required
           />
-          
+
           <ColorPicker
             value={entity.color}
-            onChange={onColorChange}
+            onChange={(color) => onChange({...entity, color})}
             label={`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Color`}
           />
 
@@ -76,22 +65,22 @@ const EditModal: React.FC<EditModalProps> = ({
             label="Description"
             name="description"
             value={entity.description}
-            onChange={onInputChange}
+            onChange={(e) => onChange({...entity, description: e.target.value})}
             margin="normal"
             multiline
             rows={3}
           />
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3 }}>
+        <DialogActions sx={{px: 3, pb: 3}}>
           <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>
-          <Button 
-            type="submit" 
-            variant="contained" 
+          <Button
+            variant="contained"
+            onClick={onSave}
             disabled={saving || !entity.name}
-            startIcon={saving ? <CircularProgress size={16} /> : null}
+            startIcon={saving ? <CircularProgress size={16}/> : null}
           >
             {saving ? 'Saving...' : (entity.id ? 'Update' : 'Create')}
           </Button>
