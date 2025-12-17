@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment, {Moment} from 'moment';
 import {Event} from 'react-big-calendar';
 import {Activity} from "@/app/domains/activity/types.ts";
 import {Category} from "@/app/domains/category/types.ts";
@@ -49,4 +49,13 @@ export const getEventStyle = (event: ActivityEvent, categories: Category[]): {st
       })
     },
   };
+};
+
+export const parseCalendarRange = (range: Date[] | {start: Date; end: Date}, view?: string): [Moment, Moment] => {
+  const [start, end] = (Array.isArray(range) ? [range[0], range[-1]] : [range.start, range.end]).map(v => moment(v));
+  if (view === 'month') {
+    const mid = start.clone().add(15, 'day');
+    return [mid.clone().startOf('month'), mid.clone().endOf('month')]
+  }
+  return [start, end.endOf('day')];
 };

@@ -8,8 +8,8 @@ import (
 
 	"example.com/tracker/domains/category"
 	"example.com/tracker/domains/category/category_builder"
-	"example.com/tracker/internal/config"
 	"example.com/tracker/internal/infra/db"
+	"example.com/tracker/internal/pkg/utils"
 )
 
 var (
@@ -17,11 +17,6 @@ var (
 )
 
 func main() {
-	// Load configuration
-	if err := config.LoadConfig("config.toml"); err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
-
 	// Initialize database connection
 	if err := db.InitGormDB(); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
@@ -39,7 +34,11 @@ func seedCategories(categoryService category.CategoryService) error {
 	categoryService = category_builder.NewCategoryService(db.GormDB)
 
 	// Read categories from JSON file
-	fileData, err := os.ReadFile("cmd/seed_db/init_categories.json")
+	path, err := utils.GetRelativePath("init_categories.json")
+	if err != nil {
+		log.Fatalf("Failed to get relative path: %v", err)
+	}
+	fileData, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatalf("Failed to read JSON file: %v", err)
 	}
@@ -68,5 +67,6 @@ func seedCategories(categoryService category.CategoryService) error {
 		fmt.Printf("Created category: %s (%s)\n", cate.Name, cate.Color)
 	}
 
+	fmt.Println("Categories seeding done")
 	return nil
 }

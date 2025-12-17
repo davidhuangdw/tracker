@@ -35,7 +35,7 @@ func (s *ActivityServiceImpl) GetActivityByID(id uint) (*activity.Activity, erro
 
 func (s *ActivityServiceImpl) GetActivities(from, to time.Time) ([]activity.Activity, error) {
 	var activities []activity.Activity
-	err := s.DB.Preload("Tags").Where("`from` >= ? AND `to` <= ?", from, to).Order("`from`").Find(&activities).Error
+	err := s.DB.Preload("Tags").Where("`to` > ? AND `from` < ?", from, to).Order("`from`").Find(&activities).Error
 	return activities, err
 }
 

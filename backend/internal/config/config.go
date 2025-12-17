@@ -3,8 +3,10 @@ package config
 import (
 	"log"
 	"os"
+	"sync"
 	"time"
 
+	"example.com/tracker/internal/pkg/utils"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -34,10 +36,17 @@ type LogConfig struct {
 	Format string `toml:"format"`
 }
 
+const configPath = "config.toml"
+
+var once sync.Once
 var GlobalConfig *Config
 
-func LoadConfig(configPath string) error {
-	data, err := os.ReadFile(configPath)
+func LoadConfig() error {
+	fullPath, err := utils.GetRelativePath(configPath)
+	if err != nil {
+		return nil
+	}
+	data, err := os.ReadFile(fullPath)
 	if err != nil {
 		return err
 	}
@@ -48,10 +57,15 @@ func LoadConfig(configPath string) error {
 	}
 
 	GlobalConfig = &config
-	log.Printf("Config loaded from: %s", configPath)
+	log.Printf("Config loaded from: %s", fullPath)
 	return nil
 }
 
 func GetConfig() *Config {
+	once.Do(func() {
+		if err := LoadConfig(); err != nil {
+			log.Fatalf("Warning: Could not load config file %v, using defaults: %v", configPath, err)
+		}
+	})
 	return GlobalConfig
 }

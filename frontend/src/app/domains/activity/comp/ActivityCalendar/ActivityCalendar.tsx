@@ -3,32 +3,26 @@ import {Calendar as BigCalendar, momentLocalizer, Views, View} from 'react-big-c
 import moment from 'moment';
 import {Box, Typography} from '@mui/material';
 import {Activity} from "@/app/domains/activity/types.ts";
-import {
-  useCreateActivity,
-  useDeleteActivity,
-  useFetchActivities,
-  useUpdateActivity
-} from "@/app/domains/activity/api.ts";
+import {useCreateActivity, useDeleteActivity, useUpdateActivity} from "@/app/domains/activity/api.ts";
+import ActivitiesContext from "@/app/domains/activity/ActivitiesContext.tsx";
 import CategoriesContext from "@/app/domains/category/CategoriesContext.tsx";
 import ActivityModal from "@/app/domains/activity/comp/ActivityModal.tsx";
-import {
-  ActivityEvent,
-  convertToEvents,
-  getEventStyle
-} from './utils.tsx';
-import {ActivityEventView} from './ActivityEventView.tsx'
+import {ActivityEvent, convertToEvents, getEventStyle, parseCalendarRange} from './utils.tsx';
+import ActivityEventView from './ActivityEventView.tsx'
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const localizer = momentLocalizer(moment);
 
 const ActivityCalendar: React.FC = () => {
-  const [activities, , reLoad] = useFetchActivities();
   const [showModal, setShowModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
   const [view, setView] = useState<View>(Views.WEEK);
+  const [date, setDate] = useState(new Date());
+  const {activities, refetch: reLoad, setRange} = useContext(ActivitiesContext);
 
   const {categories} = useContext(CategoriesContext);
+
   const [createActivity] = useCreateActivity();
   const [updateActivity] = useUpdateActivity();
   const [deleteActivity] = useDeleteActivity();
@@ -91,8 +85,12 @@ const ActivityCalendar: React.FC = () => {
           onSelectSlot={onSelectSlot}
           onSelectEvent={onSelectEvent}
           selectable
+          date={date}
+          onNavigate={setDate}
+          onRangeChange={(range, view) =>
+            setRange(parseCalendarRange(range, view))}
           view={view}
-          onView={(v) => setView(v)}
+          onView={setView}
           views={[Views.DAY, Views.WEEK, Views.MONTH, Views.AGENDA]}
           step={60}
           showMultiDayTimes

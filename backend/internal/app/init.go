@@ -7,17 +7,11 @@ import (
 	"example.com/tracker/domains/activity_tag/activity_tag_builder"
 	"example.com/tracker/domains/category/category_builder"
 	"example.com/tracker/domains/tag/tag_builder"
-	"example.com/tracker/internal/config"
 	"example.com/tracker/internal/infra/db"
 	"example.com/tracker/internal/infra/router"
 )
 
 func Init() (func() error, error) {
-	// Load configuration
-	if err := config.LoadConfig("config.toml"); err != nil {
-		log.Fatalf("Warning: Could not load config.toml, using defaults: %v", err)
-	}
-
 	// Initialize GORM database
 	if err := db.InitGormDB(); err != nil {
 		return nil, err
