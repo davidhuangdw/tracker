@@ -1,3 +1,13 @@
-const Stats = () => null;
+import {FC} from "react";
+import {CategoriesCtxProvider} from "@/app/domains/category/CategoriesContext.tsx";
+import StatsInfo from "./StatsInfo";
 
-export default Stats;
+const StatsPage: FC = () => {
+  return (
+    <CategoriesCtxProvider>
+      <StatsInfo/>
+    </CategoriesCtxProvider>
+  )
+};
+
+export default StatsPage;

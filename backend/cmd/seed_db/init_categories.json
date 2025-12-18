@@ -36,7 +36,7 @@
     "color": "#795548"
   },
   {
-    "name": "sleep",
+    "name": "Sleep",
     "color": "#673AB7"
   },
   {
@@ -49,7 +49,7 @@
   },
   {
     "name": "Idle",
-    "color": "#FFFFFF"
+    "color": "#000000"
   },
   {
     "name": "Wander",

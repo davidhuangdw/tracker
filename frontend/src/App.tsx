@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Layout from '@/app/components/Layout.tsx';
 import {ConfirmDialogProvider} from '@/lib/contexts/ConfirmDialogContext.tsx';
 import {ToastProvider} from "@/lib/contexts/ToastContext.tsx";
-import {Calendar, CategoryManagement, Stats, TagManagement} from "@/app/components/pages";
+import {Calendar, CategoryManagement, StatsPage, TagManagement} from "@/app/components/pages";
 import './App.css';
 
 const App: React.FC = () => {
@@ -14,7 +14,7 @@ const App: React.FC = () => {
           <Layout>
             <Routes>
               <Route path="/" element={<Calendar/>}/>
-              <Route path="/stats" element={<Stats/>}/>
+              <Route path="/stats" element={<StatsPage/>}/>
               <Route path="/categories" element={<CategoryManagement/>}/>
               <Route path="/tags" element={<TagManagement/>}/>
             </Routes>

@@ -1,11 +1,11 @@
 import Calendar from "./Calendar";
 import CategoryManagement from "./CategoryConfig";
-import Stats from "./Stats";
+import StatsPage from "./Stats";
 import TagManagement from "./TagConfig";
 
 export {
   Calendar,
-  Stats,
+  StatsPage,
   CategoryManagement,
   TagManagement,
 };

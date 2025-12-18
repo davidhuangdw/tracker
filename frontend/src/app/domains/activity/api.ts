@@ -12,14 +12,13 @@ export const useFetchActivities =
 
     const {data, loading, refetch} = useFetchData<Activity[]>(`/activities?${params.toString()}`);
     
-    // Convert string dates to Moment objects
-    const activitiesWithDates = data?.map(activity => ({
+    const activities = data?.map(activity => ({
       ...activity,
       from: activity.from ? moment(activity.from) : undefined,
       to: activity.to ? moment(activity.to) : undefined
     })) || EMPTY_ARR;
     
-    return [activitiesWithDates, loading, refetch]
+    return [activities, loading, refetch]
   };
 
 export const useCreateActivity = (): [(activity?: Activity) => Promise<Activity>, boolean] => {
