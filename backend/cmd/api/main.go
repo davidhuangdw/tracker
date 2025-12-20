@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"example.com/tracker/internal/app"
+	"example.com/tracker/internal/infra/db/seed"
 )
 
 func main() {
@@ -28,6 +29,17 @@ func main() {
 	}()
 
 	log.Println("Server started. Press Ctrl+C to shutdown.")
+
+	// async seed DB
+	go func() {
+		if err := seed.SeedCategories(); err != nil {
+			log.Fatalf("Failed to seed categories: %v", err)
+		}
+
+		if err := seed.SeedAggrs(); err != nil {
+			log.Fatalf("Failed to seed aggrs: %v", err)
+		}
+	}()
 
 	// Wait for shutdown signal
 	<-shutdown

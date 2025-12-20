@@ -18,6 +18,7 @@ import SelectTags from "@/app/domains/tag/comp/SelectTags.tsx";
 import EditActivityDate from "./EditActivityDate.tsx";
 import { useConfirm } from "@/lib/hooks/confirmDialog";
 import moment from 'moment';
+import {compact} from "lodash";
 
 const validActivity = (a: Activity) => {
   return !!(a.category_id && a.from && a.to);
@@ -77,14 +78,11 @@ const ActivityModal: React.FC<{
 
       <DialogContent>
         <Box component="form" id="activity-form" sx={{mt: 2}}>
-          <TextField
-            multiline
-            fullWidth
-            label="Name"
-            value={inputActivity.name || ''}
-            onChange={(e) => setInputActivity(prev => ({...prev, name: e.target.value}))}
-            margin="normal"
-            // required
+          <SelectCategory
+            category_ids={compact([inputActivity.category_id])}
+            onChange={(category_ids) => onChange({category_id: category_ids[0]})}
+            required
+            showColorChip
           />
 
           <EditActivityDate
@@ -94,12 +92,16 @@ const ActivityModal: React.FC<{
             onToChange={(to) => onChange({to})}
           />
 
-          <SelectCategory
-            value={inputActivity.category_id || ''}
-            onChange={(category_id) => onChange({category_id})}
-            required
-            showColorChip
+          <TextField
+            multiline
+            fullWidth
+            label="Content"
+            value={inputActivity.name || ''}
+            onChange={(e) => setInputActivity(prev => ({...prev, name: e.target.value}))}
+            margin="normal"
+            // required
           />
+
 
           <SelectTags
             selectedTags={inputTags}

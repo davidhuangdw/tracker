@@ -92,7 +92,7 @@ const ActivityCalendar: React.FC = () => {
           view={view}
           onView={setView}
           views={[Views.DAY, Views.WEEK, Views.MONTH, Views.AGENDA]}
-          step={60}
+          step={30}
           showMultiDayTimes
           eventPropGetter={eventPropGetter}
           dayLayoutAlgorithm="overlap"

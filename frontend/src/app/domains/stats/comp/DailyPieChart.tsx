@@ -1,9 +1,9 @@
-import {FC, useMemo} from "react";
+import {FC, useContext, useMemo} from "react";
 import {Box, Card, CardContent, Chip, Typography} from "@mui/material";
 import {DailyStats} from "@/app/domains/stats/types.ts";
-import {Category} from "@/app/domains/category/types.ts";
 import moment from "moment/moment";
 import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from "recharts";
+import CategoriesContext from "@/app/domains/category/CategoriesContext.tsx";
 
 const PILLS_LIMIT = 5;
 
@@ -39,10 +39,10 @@ const PieChartTooltip: FC<any> = ({active, payload}) => {
 
 export const DailyPieChart: FC<{
   dailyStat: DailyStats;
-  categories: Category[];
   showPills?: boolean;
   showTotal?: boolean;
-}> = ({dailyStat, categories, showPills, showTotal}) => {
+}> = ({dailyStat, showPills, showTotal}) => {
+  const {categories} = useContext(CategoriesContext);
   const pieChartData = useMemo(() => {
     const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
 

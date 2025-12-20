@@ -5,6 +5,7 @@ import (
 
 	"example.com/tracker/domains/activity"
 	"example.com/tracker/domains/activity_tag"
+	"example.com/tracker/domains/aggr"
 	"example.com/tracker/domains/category"
 	"example.com/tracker/domains/tag"
 	"example.com/tracker/domains/user"
@@ -15,24 +16,25 @@ import (
 func RunMigrations() error {
 	m := gormigrate.New(GetDB(), gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "20250101000000",
+			ID: "20250101000001",
 			Migrate: func(tx *gorm.DB) error {
-				// Auto migrate all domain models
 				return tx.AutoMigrate(
 					&user.User{},
 					&category.Category{},
 					&tag.Tag{},
 					&activity.Activity{},
 					&activity_tag.ActivityTag{},
+					&aggr.Aggr{},
 				)
 			},
 			Rollback: func(tx *gorm.DB) error {
 				return tx.Migrator().DropTable(
 					"users",
-					"categories", 
+					"categories",
 					"tags",
 					"activities",
 					"activity_tags",
+					"aggrs",
 				)
 			},
 		},

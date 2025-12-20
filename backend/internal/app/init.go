@@ -5,6 +5,7 @@ import (
 
 	"example.com/tracker/domains/activity/activity_builder"
 	"example.com/tracker/domains/activity_tag/activity_tag_builder"
+	"example.com/tracker/domains/aggr/aggr_builder"
 	"example.com/tracker/domains/category/category_builder"
 	"example.com/tracker/domains/tag/tag_builder"
 	"example.com/tracker/internal/infra/db"
@@ -27,12 +28,14 @@ func Init() (func() error, error) {
 	categoryService := category_builder.NewCategoryService(db.GormDB)
 	tagService := tag_builder.NewTagService(db.GormDB)
 	activityTagService := activity_tag_builder.NewActivityTagService(db.GormDB)
+	aggrService := aggr_builder.NewAggrService(db.GormDB)
 
 	handlers := router.Handlers{
 		activity_builder.NewActivityHandler(activityService),
 		category_builder.NewCategoryHandler(categoryService),
 		tag_builder.NewTagHandler(tagService),
 		activity_tag_builder.NewActivityTagHandler(activityTagService),
+		aggr_builder.NewAggrHandler(aggrService),
 	}
 
 	log.Println("Application initialized successfully")

@@ -40,7 +40,7 @@ export const StatsInfo: FC = () => {
       </Typography>
 
       <Grid container spacing={3} sx={{width: '100%', marginBottom: 5}}>
-        {reverse(dailyStats).map((dailyStat) => (
+        {reverse([...dailyStats]).map((dailyStat) => (
           <Grid
             key={dailyStat.date}
             size={{xs:12, sm:6, md:4, lg:3}}
@@ -51,7 +51,7 @@ export const StatsInfo: FC = () => {
             }}
           >
             <Box sx={{width: '100%', height: '100%'}}>
-              <DailyPieChart dailyStat={dailyStat} categories={categories} showPills/>
+              <DailyPieChart dailyStat={dailyStat} showPills/>
             </Box>
           </Grid>
         ))}

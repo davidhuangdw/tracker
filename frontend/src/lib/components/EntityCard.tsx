@@ -11,8 +11,9 @@ import {
 import {Edit, Delete} from '@mui/icons-material';
 import {Category} from "@/app/domains/category/types.ts";
 import {Tag} from "@/app/domains/tag/types.ts";
+import {Aggr} from "@/app/domains/aggr/types.ts";
 
-export type Entity = Category | Tag;
+export type Entity = Category | Tag | Aggr;
 
 const EntityCard: React.FC<{
   entity: Entity;

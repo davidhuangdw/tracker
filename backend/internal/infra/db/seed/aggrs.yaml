@@ -1,0 +1,12 @@
+- name: Build
+  color: "#4CAF50"
+  categoryNames: "Self Study Read Hobby Exercise Peace"
+- name: Waste
+  color: "#F44336"
+  categoryNames: "Game Vid Idle Wander Surf"
+- name: Study
+  color: "#2196F3"
+  categoryNames: Study
+- name: Sleep
+  color: "#673AB7"
+  categoryNames: Sleep

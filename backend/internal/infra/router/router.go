@@ -53,6 +53,16 @@ func SetupRouter(handlers Handlers) *gin.Engine {
 			tags.PUT("/:id", handlers.UpdateTag)
 			tags.DELETE("/:id", handlers.DeleteTag)
 		}
+
+		// Aggr routes
+		aggr := api.Group("/aggr")
+		{
+			aggr.POST("", handlers.CreateAggr)
+			aggr.GET("", handlers.GetAggrs)
+			aggr.GET("/:id", handlers.GetAggr)
+			aggr.PUT("/:id", handlers.UpdateAggr)
+			aggr.DELETE("/:id", handlers.DeleteAggr)
+		}
 	}
 
 	return r

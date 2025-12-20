@@ -1,39 +1,20 @@
 import {FC, useContext, useMemo} from "react";
-import moment from "moment";
 import {Box, Chip, Typography} from '@mui/material';
-import {Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
+import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from 'recharts';
 import CategoriesContext from "@/app/domains/category/CategoriesContext.tsx";
 import {SimpleTooltip} from "@/app/domains/activity/comp/ActivitiesPieChart/SimpleTooltip.tsx";
 import {formatDuration} from "@/app/domains/activity/comp/ActivitiesPieChart/utils.ts";
 import ActivitiesContext from "@/app/domains/activity/ActivitiesContext.tsx";
+import {minutesByCategory} from "@/app/domains/stats/utils.ts";
 
 const ActivitiesPieChart: FC = () => {
-  const {activities, range} = useContext(ActivitiesContext)
-  const [start, end] = range;
+  const {activities} = useContext(ActivitiesContext)
   const {categories} = useContext(CategoriesContext);
-
-  const minutesByCategory = useMemo(() => {
-    const byCategory: Record<number, number> = {};
-
-    for (const activity of activities) {
-      const {category_id, from, to} = activity;
-
-      if (!category_id || !from || !to) continue;
-
-      const st = moment.max(start, from);
-      const ed = moment.min(end, to);
-
-      const minutes = ed.diff(st, 'minutes');
-      byCategory[category_id] = (byCategory[category_id] || 0) + Math.max(0, minutes);
-    }
-
-    return byCategory;
-  }, [activities, start, end]);
 
   const pieChartData = useMemo(() => {
     const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
 
-    return Object.entries(minutesByCategory)
+    return Object.entries(minutesByCategory(activities))
       .map(([categoryId, minutes]) => {
         const category = categoryMap.get(parseInt(categoryId));
         return {
@@ -44,7 +25,7 @@ const ActivitiesPieChart: FC = () => {
         };
       })
       .sort((a, b) => b.value - a.value); // Sort by duration descending
-  }, [minutesByCategory, categories]);
+  }, [activities, categories]);
 
   const totalMinutes = Object.values(minutesByCategory).reduce((sum, minutes) => sum + minutes, 0);
 
@@ -86,7 +67,7 @@ const ActivitiesPieChart: FC = () => {
                   ))}
                 </Pie>
                 <Tooltip content={<SimpleTooltip/>}/>
-                <Legend/>
+                {/*<Legend/>*/}
               </PieChart>
             </ResponsiveContainer>
           </Box>

@@ -1,11 +1,12 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {Box, Button, Typography, Grid, CircularProgress} from '@mui/material';
 import {Add} from '@mui/icons-material';
 import {Category} from "@/app/domains/category/types.ts";
-import {useCreateCategory, useDeleteCategory, useFetchCategories, useUpdateCategory} from "@/app/domains/category/api.ts";
+import {useCreateCategory, useDeleteCategory, useUpdateCategory} from "@/app/domains/category/api.ts";
 import EditModal from "@/lib/components/EditModal";
 import EntityCard from "@/lib/components/EntityCard";
 import { useConfirm } from "@/lib/hooks/confirmDialog";
+import CategoriesContext from "@/app/domains/category/CategoriesContext.tsx";
 
 const defaultInputCategory: Category = {
   name: '',
@@ -17,7 +18,7 @@ const CategoryManagement: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [inputCategory, setInputCategory] = useState<Category>(defaultInputCategory);
 
-  const [categories, loading, reLoad] = useFetchCategories();
+  const {categories, loading, refetch: reLoad} = useContext(CategoriesContext);
   const [createCategory, creating] = useCreateCategory();
   const [updateCategory, updating] = useUpdateCategory();
   const [deleteCategory] = useDeleteCategory();
@@ -67,7 +68,7 @@ const CategoryManagement: React.FC = () => {
   return (
     <Box>
       <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h5" component="h1">
           Category Management
         </Typography>
         <Button

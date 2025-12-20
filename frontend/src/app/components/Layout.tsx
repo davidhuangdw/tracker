@@ -12,7 +12,7 @@ import {
   Typography,
   CssBaseline
 } from '@mui/material';
-import { CalendarToday, BarChart, Category, Tag } from '@mui/icons-material';
+import { CalendarToday, BarChart, Settings } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
@@ -22,8 +22,7 @@ const Layout: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const menuItems = [
     { text: 'Calendar', path: '/', icon: <CalendarToday /> },
     { text: 'Statistics', path: '/stats', icon: <BarChart /> },
-    { text: 'Category Config', path: '/categories', icon: <Category /> },
-    { text: 'Tag Config', path: '/tags', icon: <Tag /> },
+    { text: 'Configuration', path: '/config', icon: <Settings /> },
   ];
 
   return (
